@@ -11,7 +11,7 @@ import db.ConnectMySql;
 
 public class Acct {
 	private String acct_no;// 账号
-	private String acct_nname;// 账户名
+	private String acct_name;// 账户名
 	private double balance;// 账户余额
 	private int acct_status;// 状态 1-正常 2-销户 3-挂失 4-冻结
 	private String cust_no;// 客户编号
@@ -47,7 +47,7 @@ public class Acct {
 		StringBuffer strSQL = new StringBuffer();
 		strSQL.append("insert into t_acct values('");
 		strSQL.append(acct_no).append("','");
-		strSQL.append(acct_nname).append("',");
+		strSQL.append(acct_name).append("',");
 		strSQL.append(balance).append(",");
 		strSQL.append(acct_status).append(",'");
 		strSQL.append(cust_no).append("',");
@@ -154,7 +154,7 @@ public class Acct {
 		System.out.println("SQL2 [" + strSQL2 + "]");
 		Connection conn = dbhelper.getConnection();
 		try {
-			conn.setAutoCommit(false);
+			conn.setAutoCommit(false);//事务
 			int i = dbhelper.doUpdate(strSQL1.toString());
 			int j = dbhelper.doUpdate(strSQL2.toString());
 			conn.commit();
@@ -313,12 +313,12 @@ public class Acct {
 		this.acct_no = acct_no;
 	}
 
-	public String getAcct_nname() {
-		return acct_nname;
+	public String getAcct_name() {
+		return acct_name;
 	}
 
-	public void setAcct_nname(String acct_nname) {
-		this.acct_nname = acct_nname;
+	public void setAcct_name(String acct_name) {
+		this.acct_name = acct_name;
 	}
 
 	public double getBalance() {

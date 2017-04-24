@@ -4,10 +4,7 @@ import java.sql.Date;
 import java.sql.Time;
 
 import busi.BankTrans;
-import busi.doSql.Acct;
-import busi.doSql.AcctDetail;
-import busi.doSql.AcctOperation;
-import busi.doSql.Custinfo;
+import busi.doSql.*;
 import busi.validate.DataValidate;
 import db.ConnectMySql;
 
@@ -104,9 +101,15 @@ public class OpenAcct extends BankTrans {
 			setTrans_result("两次输入密码不一致");
 			return -1;
 		}
-		String acctNo = acct.createAcctNo();
+		//插入数据库acct表
+		//变更：此处为总账户
+		String acctNo = acct.createAcctNo();//开户，创建银行账号
 		acct.setAcct_no(acctNo);
-		acct.setAcct_nname(acct.getAcctName());
+		acct.setAcct_name(acct.getAcctName());
+		/*
+		* 变更：总balance=各表balance之和
+		* 需修改acct的setBalance方法
+		* */
 		acct.setBalance(10.00);
 		acct.setAcct_status(1);
 		acct.setCust_no(acct.getCustNo());
@@ -124,6 +127,7 @@ public class OpenAcct extends BankTrans {
 		acctOpr.setOpr_date(date);
 		acctOpr.setOpr_time(new Time(new java.util.Date().getTime()));
 
+		//插入数据库t_acct_detail表
 		AcctDetail detail = new AcctDetail();
 		detail.setdbhelper(dbhelper);
 		detail.setTrans_no(detail.createDetailNo());
@@ -136,7 +140,10 @@ public class OpenAcct extends BankTrans {
 		detail.setTrans_time(new Time(new java.util.Date().getTime()));
 		detail.setOperator_id("001");
 
-		if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail()) < 0) {
+		//插入数据库suacct_demand表
+		SubAcct acctDemand = new SubAcct();
+
+		if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail(),acctDemand.regDemandAcct()) < 0) {
 			setTrans_result("开户失败!");
 		}
 		setTrans_result("开户成功");
