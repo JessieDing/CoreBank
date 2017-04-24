@@ -77,7 +77,7 @@ public class AcctDetail {
 		strSQL1.append(endDate);
 		strSQL1.append("'");
 		System.out.println("SQL [" + strSQL1 + "]");
-		System.out.println("交易流水\t\t交易账号\t\t交易前金额\t交易后金额\t交易类型\t交易金额\t交易日期\t\t交易时间\t\t操作员");
+		System.out.println("交易流水\t交易账号\t交易前金额\t交易后金额\t交易类型\t交易金额\t交易日期\t交易时间\t操作员");
 		try {
 			ResultSet rs1 = dbhelper.doQuery(strSQL1.toString());
 			while (rs1.next()) {

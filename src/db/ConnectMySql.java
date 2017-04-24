@@ -199,12 +199,61 @@ public class ConnectMySql {
 		return ret;
 	}
 
+
 	/**
 	 * 主要操作有开户、销户
 	 * 数据库操作，事务提交传入3句SQL语句，分别插入三个表，同时成功返回结果，一条不成功，其他都不插入
+	 * 更改-分别插入三个表：
+	 * t_acct
+	 * t_acct_operation
+	 * t_acct_detail
+	 *
+	 * @param dbhelper
+	 * @param SQL1
+	 * @param SQL2
+	 * @param SQL3
+	 * @return
+	 */
+
+	public int insertIntoDBO(ConnectMySql dbhelper, String SQL1, String SQL2, String SQL3) {
+		Connection conn = dbhelper.getConnection();
+		try {
+			conn.setAutoCommit(false);// 将提交事务设为手动提交
+			// 插入成功返回结果为1，不成功为0
+			int i = dbhelper.doUpdate(SQL1.toString());
+			int j = dbhelper.doUpdate(SQL2.toString());
+			int k = dbhelper.doUpdate(SQL3.toString());
+			if (i <= 0) {
+				System.out.println("insert t_acct 表失败");
+				return -1;
+			}
+			if (j <= 0) {
+				System.out.println("insert t_acct_operation 表失败");
+				return -1;
+			}
+			if (k <= 0) {
+				System.out.println("insert t_acct_detail 表失败");
+				return -1;
+			}
+			conn.commit();
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+
+	/**
+	 * 主要操作有开户、销户
+	 * 数据库操作，事务提交传入4句SQL语句，分别插入四个表，同时成功返回结果，一条不成功，其他都不插入
 	 * 更改-分别插入四个表：
 	 * t_acct
-	 * subacct_demand
+	 * t_sub_acct
 	 * t_acct_operation
 	 * t_acct_detail
 	 *
@@ -236,7 +285,7 @@ public class ConnectMySql {
 				return -1;
 			}
 			if (h <= 0) {
-				System.out.println("insert subacct_demand 表失败");
+				System.out.println("insert t_sub_acct 表失败");
 				return -1;
 			}
 			conn.commit();
@@ -251,40 +300,6 @@ public class ConnectMySql {
 		return 0;
 	}
 
-	/*
-	*
-	* public int insertIntoDBO(ConnectMySql dbhelper, String SQL1, String SQL2, String SQL3) {
-		Connection conn = dbhelper.getConnection();
-		try {
-			conn.setAutoCommit(false);// 将提交事务设为手动提交
-			// 插入成功返回结果为1，不成功为0
-			int i = dbhelper.doUpdate(SQL1.toString());
-			int j = dbhelper.doUpdate(SQL2.toString());
-			int k = dbhelper.doUpdate(SQL3.toString());
-			if (i <= 0) {
-				System.out.println("insert t_acct 表失败");
-				return -1;
-			}
-			if (j <= 0) {
-				System.out.println("insert t_acct_operation 表失败");
-				return -1;
-			}
-			if (k <= 0) {
-				System.out.println("insert t_acct_detail 表失败");
-				return -1;
-			}
-			conn.commit();
-		} catch (SQLException e) {
-			try {
-				connection.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		return 0;
-	}
-	* */
 
 
 	/**
