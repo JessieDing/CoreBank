@@ -36,7 +36,7 @@ public class SubAcct {
         strSQL.append(sub_acct_no).append("','");
         strSQL.append(sub_Id_type).append("',");
         strSQL.append(sub_acct_balance).append(",'");
-        strSQL.append(open_date).append("',");
+        strSQL.append(open_date).append("',");//设置了值用单引号
         strSQL.append(due_date_for_Fixed).append(",");
         strSQL.append(last_Inters_date).append(",");
         strSQL.append(aggregate).append(",");

@@ -16,14 +16,15 @@ public class TransDeposit extends BankTrans {
 	private double tmpMoney;
 	private Date date;
 	private Time time;
-	// private String depositType;// 001-整存整取 002-整存零取 003-定活两变 004-定期存款
+	 private String depositType;// 001-整存整取 002-整存零取 003-定活两变 004-定期存款
 	private ConnectMySql dbhelper;
+
 
 	@Override
 	public void prtPrompt() {
 		System.out.println("》》》存款《《《");
-		System.out.println("请输入账号、密码");
-		System.out.println("@acct_no@acct_pwd");
+		System.out.println("请输入账号、密码、存款类型（1-整存整取 2-通知存款 默认活期）");
+		System.out.println("@acct_no @acct_pwd @deposit_type");
 	}
 
 	@Override
@@ -38,6 +39,11 @@ public class TransDeposit extends BankTrans {
 			setTrans_result("获取密码失败");
 			return -1;
 		}
+
+		//存款类型
+		depositType=scn.next();
+
+
 		// 数据有效性校验
 		if (dataInvalidate() != 0) {
 			setTrans_result("输入数据合法性有误!");

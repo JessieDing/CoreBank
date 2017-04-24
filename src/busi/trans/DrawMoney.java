@@ -17,11 +17,12 @@ public class DrawMoney extends BankTrans {
 	private Time time;
 	private ConnectMySql dbhelper;
 
+
 	@Override
 	public void prtPrompt() {
 		System.out.println("》》》取钱《《《");
 		System.out.println("输入账号、账户密码");
-		System.out.println("@acct_no@acct_pwd");
+		System.out.println("@acct_no @acct_pwd");
 	}
 
 	@Override
@@ -36,6 +37,7 @@ public class DrawMoney extends BankTrans {
 			setTrans_result("获取密码失败");
 			return -1;
 		}
+
 		// 数据有效性校验
 		if (dataInvalidate() != 0) {
 			setTrans_result("输入数据合法性有误!");
