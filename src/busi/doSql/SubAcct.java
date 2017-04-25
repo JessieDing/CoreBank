@@ -26,7 +26,6 @@ public class SubAcct {
     public SubAcct() {
     }
 
-
     /**
      * 子账户
      *
@@ -50,11 +49,11 @@ public class SubAcct {
     }
 
     public String openFixedAcct(String acctNo,
-                              String Trans_no,
-                              String sub_Id_type,
-                              double deposit_amount,
-                              Date openDate,
-                              int days) {
+                                String Trans_no,
+                                String sub_Id_type,
+                                double deposit_amount,
+                                Date openDate,
+                                int days) {
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
         setSub_acct_no("2000" + Trans_no);
@@ -67,11 +66,11 @@ public class SubAcct {
     }
 
     public String openCallAcct(String acctNo,
-                             String Trans_no,
-                             String sub_Id_type,
-                             double deposit_amount,
-                             Date openDate,
-                             int callDay) {
+                               String Trans_no,
+                               String sub_Id_type,
+                               double deposit_amount,
+                               Date openDate,
+                               int callDay) {
 
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
@@ -79,28 +78,10 @@ public class SubAcct {
         setSub_Id_type(sub_Id_type);
         setSub_acct_balance(deposit_amount);
         setOpen_date(openDate);
-        setDue_date_for_Fixed(callDay);//通知期限（1天、7天）
+        setCall_day(callDay);//通知期限（1天、7天）
 
         return regSubAcct();
     }
-
-
-
-    /* 写活期子账户
-    public String openDemandAcct() {
-        StringBuffer strSQL = new StringBuffer();
-        strSQL.append("insert into t_sub_acct " +
-                "(Acct_No,Sub_acct_no,Sub_Id_type,Sub_Acct_balance,Open_date,sub_acct_status)" +
-                " values('");
-        strSQL.append(acct_no).append("','");
-        strSQL.append(sub_acct_no).append("','");
-        strSQL.append(sub_Id_type).append("',");
-        strSQL.append(sub_acct_balance).append(",'");
-        strSQL.append(open_date).append("',");
-//        strSQL.append(aggregate).append(",");
-        strSQL.append(acct_status).append(",");
-        return strSQL.toString();
-    }*/
 
 
     public String getAcct_no() {
@@ -190,6 +171,7 @@ public class SubAcct {
     public void setdbhelper(ConnectMySql dbhelper) {
         this.dbhelper = dbhelper;
     }
+
     /**
      * 验证子账户类型
      *
@@ -198,10 +180,11 @@ public class SubAcct {
     public boolean isSubAcctTypeExist(String subAcctType) throws Exception {
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("select * from t_sub_acct");
-        strSQL.append(" where Sub_Id_type = '");
+        strSQL.append(" where Sub_Id_type='");
         strSQL.append(subAcctType);
         strSQL.append("'");
         System.out.println("SQL [" + strSQL + "]");
+
         ResultSet rs = dbhelper.doQuery(strSQL.toString());
         int num = 0;
         try {
@@ -212,10 +195,65 @@ public class SubAcct {
             if (num > 0) {
                 return true;
             }
-            return false;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
+            return true;
         }
+        return false;
     }
+
+    public String getSubAcctNo(String subAcctType) {
+        String tmp = "";
+        StringBuffer strSQL1 = new StringBuffer();
+        strSQL1.append("select * from t_sub_acct");
+        strSQL1.append(" where Sub_Id_type = '");
+        strSQL1.append(subAcctType);
+        strSQL1.append("'");
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL1.toString());
+            while (rs1.next()) {
+                tmp = rs1.getString("Sub_acct_no");
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tmp;
+    }
+
+    public String insertIntoCallAcct(String acctNo,
+                                     String subAcctNo,
+                                     String sub_Id_type,
+                                     double deposit_amount,
+                                     Date openDate,
+                                     int callDay) {
+
+        setdbhelper(dbhelper);
+        setAcct_no(acctNo);
+        setSub_acct_no(subAcctNo);
+        setSub_Id_type(sub_Id_type);
+        setSub_acct_balance(deposit_amount);
+        setOpen_date(openDate);
+        setCall_day(callDay);
+
+        return regSubAcct();
+    }
+
+    /*插入001类（活期）子账户数据表*/
+    public String insertIntoDemandAcct(String acctNo,
+                                     String subAcctNo,
+                                     String sub_Id_type,
+                                     double deposit_amount,
+                                     Date openDate) {
+        setdbhelper(dbhelper);
+        setAcct_no(acctNo);
+        setSub_acct_no(subAcctNo);
+        setSub_Id_type(sub_Id_type);
+        setSub_acct_balance(deposit_amount);
+        setOpen_date(openDate);
+
+        return regSubAcct();
+
+    }
+
 }

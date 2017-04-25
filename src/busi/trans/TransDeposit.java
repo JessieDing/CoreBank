@@ -127,9 +127,44 @@ public class TransDeposit extends BankTrans {
         AcctDetail detail = new AcctDetail();
         OpenAcct openAcct = new OpenAcct();
         double banlanceBefore = acct.calcTotalBalance();
-//活期
-        if (depositType.equals("001")) {
 
+        //活期子账户（默认存在），不再创建账户
+        if (depositType.equals("001")) {
+            subAcct.setdbhelper(dbhelper);
+            String subAcctNo = subAcct.getSubAcctNo(depositType);
+            subAcct.setSub_acct_no(subAcctNo);
+
+            date = new Date(new java.util.Date().getTime());
+            detail.setdbhelper(dbhelper);
+            String detailNo = detail.createDetailNo();
+            detail.setTrans_no(detailNo);
+            detail.setAcct_no(acct_no);
+            detail.setBalance_before(banlanceBefore);
+            detail.setTrans_type("006");
+            detail.setTrans_amt(money);
+            detail.setTrans_date(date);
+            time = new Time(new java.util.Date().getTime());
+            detail.setTrans_time(time);
+            detail.setOperator_id("001");
+
+            String addDemandAcct = subAcct.insertIntoDemandAcct(acct_no,subAcctNo,"001",money,date);
+            if (dbhelper.insertIntoDBO(dbhelper, addDemandAcct) < 0) {
+                setTrans_result("写入子账户失败!");
+            }
+            setTrans_result("成功写入子账户");
+            double banlanceAfter = acct.calcTotalBalance();
+            acct.setBalance(banlanceAfter);
+            detail.setBalance_after(acct.getBalance());//交易明细拿到定存后总账余额
+            if (dbhelper.insertIntoDBO(dbhelper, acct.deposit(), detail.addAcctDetail()) < 0) {
+                setTrans_result("存款失败!");
+            }
+            setTrans_result("存款成功");
+
+
+            // 打印凭条
+            setTrans_code(detailNo);
+            setTrans_name("活期存款");
+            prtTransInfo(acct);
             return 0;
         }
         //整存整取
@@ -172,7 +207,8 @@ public class TransDeposit extends BankTrans {
         }
         //通知存款
         if (depositType.equals("003")) {
-            if (!subAcct.isSubAcctTypeExist("003")){
+            subAcct.setdbhelper(dbhelper);
+            if (!subAcct.isSubAcctTypeExist(depositType)) {
                 date = new Date(new java.util.Date().getTime());
                 detail.setdbhelper(dbhelper);
                 String detailNo = detail.createDetailNo();
@@ -189,7 +225,7 @@ public class TransDeposit extends BankTrans {
                 System.out.println("请输入通知期限：1：1天通知；7：7天通知");
                 Scanner scanner = new Scanner(System.in);
                 int callDay = scanner.nextInt();
-                if (!dv.callDayValidate(callDay)){
+                if (!dv.callDayValidate(callDay)) {
                     setTrans_result("通知期限输入有误!");
                     return -1;
                 }
@@ -209,13 +245,48 @@ public class TransDeposit extends BankTrans {
 
                 // 打印凭条
                 setTrans_code(detailNo);
-                setTrans_name(callDay + "天"+ "通知存款" );
+                setTrans_name(callDay + "天" + "通知存款");
                 prtTransInfo(acct);
                 return 0;
-            }else{
-                //已存在通知存款子账户，默认存入活期
-                System.out.println("已有通知存款子账户,请选择存为活期或整存整取");
-                return -1;
+            } else {
+                //已存在通知存款子账户，不再创建账户，
+                String callAcctNo = subAcct.getSubAcctNo(depositType);
+                subAcct.setSub_acct_no(callAcctNo);
+                int callDay = subAcct.getCall_day();
+                subAcct.setCall_day(callDay);
+
+                date = new Date(new java.util.Date().getTime());
+                detail.setdbhelper(dbhelper);
+                String detailNo = detail.createDetailNo();
+                detail.setTrans_no(detailNo);
+                detail.setAcct_no(acct_no);
+                detail.setBalance_before(banlanceBefore);
+                detail.setTrans_type("006");
+                detail.setTrans_amt(money);
+                detail.setTrans_date(date);
+                time = new Time(new java.util.Date().getTime());
+                detail.setTrans_time(time);
+                detail.setOperator_id("001");
+
+                String addCalldAcct = subAcct.insertIntoCallAcct(acct_no, subAcct.getSub_acct_no(), "003", money, date, subAcct.getCall_day());
+                if (dbhelper.insertIntoDBO(dbhelper, addCalldAcct) < 0) {
+                    setTrans_result("写入子账户失败!");
+                }
+                setTrans_result("成功写入子账户");
+                double banlanceAfter = acct.calcTotalBalance();
+                acct.setBalance(banlanceAfter);
+                detail.setBalance_after(acct.getBalance());//交易明细拿到定存后总账余额
+                if (dbhelper.insertIntoDBO(dbhelper, acct.deposit(), detail.addAcctDetail()) < 0) {
+                    setTrans_result("存款失败!");
+                }
+                setTrans_result("存款成功");
+
+
+                // 打印凭条
+                setTrans_code(detailNo);
+                setTrans_name(subAcct.getCall_day() + "天" + "通知存款");
+                prtTransInfo(acct);
+                return 0;
             }
 
         }
