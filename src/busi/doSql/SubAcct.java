@@ -4,8 +4,6 @@ import db.ConnectMySql;
 
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by dell on 2017/4/24.
@@ -33,7 +31,7 @@ public class SubAcct {
      * @return
      */
     public String regSubAcct() {
-        StringBuffer strSQL = new StringBuffer();
+        StringBuilder strSQL = new StringBuilder();
         strSQL.append("insert into t_sub_acct values('");
         strSQL.append(acct_no).append("','");
         strSQL.append(sub_acct_no).append("','");
@@ -44,8 +42,8 @@ public class SubAcct {
         strSQL.append(last_Inters_date).append(",");
         strSQL.append(aggregate).append(",");
         strSQL.append(acct_status).append(",");
-        strSQL.append(call_day).append(",");
-        strSQL.append(due_date).append(")");
+        strSQL.append(call_day).append(",'");
+        strSQL.append(due_date).append("')");
         System.out.println("SQL[" + strSQL + "]");
         return strSQL.toString();
     }
@@ -56,15 +54,22 @@ public class SubAcct {
                                 double deposit_amount,
                                 Date openDate,
                                 int days) {
-        setdbhelper(dbhelper);
-        setAcct_no(acctNo);
-        setSub_acct_no("2000" + Trans_no);
-        setSub_Id_type(sub_Id_type);
-        setSub_acct_balance(deposit_amount);
-        setOpen_date(openDate);
-        setFix_deposit_period(days);//定存天数
+        this.acct_no = acctNo;
+        this.sub_acct_no = "2000" + Trans_no;
+        this.sub_Id_type = sub_Id_type;
+        this.sub_acct_balance = deposit_amount;
+        this.open_date = openDate;
+        this.due_date = addDay(openDate, days);
+        this.fix_deposit_period = days;//定存天数
 
         return regSubAcct();
+    }
+
+    private static Date addDay(Date date, long day) {
+        long time = date.getTime(); // 得到指定日期的毫秒数
+        day = day * 24 * 60 * 60 * 1000; // 要加上的天数转换成毫秒数
+        time += day; // 相加得到新的毫秒数
+        return new Date(time); // 将毫秒数转换成日期
     }
 
     public String openCallAcct(String acctNo,
@@ -177,6 +182,7 @@ public class SubAcct {
     public Date getDue_date() {
         return due_date;
     }
+
     public void setDue_date(Date due_date) {
         this.due_date = due_date;
     }
@@ -187,7 +193,7 @@ public class SubAcct {
      * @throws Exception
      */
     public boolean isSubAcctTypeExist(String subAcctType) throws Exception {
-        StringBuffer strSQL = new StringBuffer();
+        StringBuilder strSQL = new StringBuilder();
         strSQL.append("select * from t_sub_acct");
         strSQL.append(" where Sub_Id_type='");
         strSQL.append(subAcctType);
@@ -213,7 +219,7 @@ public class SubAcct {
 
     public String getSubAcctNo(String subAcctType) {
         String tmp = "";
-        StringBuffer strSQL1 = new StringBuffer();
+        StringBuilder strSQL1 = new StringBuilder();
         strSQL1.append("select * from t_sub_acct");
         strSQL1.append(" where Sub_Id_type = '");
         strSQL1.append(subAcctType);
@@ -250,10 +256,10 @@ public class SubAcct {
 
     /*插入001类（活期）子账户数据表*/
     public String insertIntoDemandAcct(String acctNo,
-                                     String subAcctNo,
-                                     String sub_Id_type,
-                                     double deposit_amount,
-                                     Date openDate) {
+                                       String subAcctNo,
+                                       String sub_Id_type,
+                                       double deposit_amount,
+                                       Date openDate) {
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
         setSub_acct_no(subAcctNo);

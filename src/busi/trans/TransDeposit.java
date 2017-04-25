@@ -121,12 +121,12 @@ public class TransDeposit extends BankTrans {
                 flag = true;
             }
         } while (flag);
+
         // 存款
 
         SubAcct subAcct = new SubAcct();
         AcctDetail detail = new AcctDetail();
-        OpenAcct openAcct = new OpenAcct();
-        double banlanceBefore = acct.calcTotalBalance();
+        double balanceBefore = acct.calcTotalBalance();
 
         //活期子账户（默认存在），不再创建账户
         if (depositType.equals("001")) {
@@ -139,7 +139,7 @@ public class TransDeposit extends BankTrans {
             String detailNo = detail.createDetailNo();
             detail.setTrans_no(detailNo);
             detail.setAcct_no(acct_no);
-            detail.setBalance_before(banlanceBefore);
+            detail.setBalance_before(balanceBefore);
             detail.setTrans_type("006");
             detail.setTrans_amt(money);
             detail.setTrans_date(date);
@@ -174,7 +174,7 @@ public class TransDeposit extends BankTrans {
             String detailNo = detail.createDetailNo();
             detail.setTrans_no(detailNo);
             detail.setAcct_no(acct_no);
-            detail.setBalance_before(banlanceBefore);
+            detail.setBalance_before(balanceBefore);
             detail.setTrans_type("006");
             detail.setTrans_amt(money);
             detail.setTrans_date(date);
@@ -214,7 +214,7 @@ public class TransDeposit extends BankTrans {
                 String detailNo = detail.createDetailNo();
                 detail.setTrans_no(detailNo);
                 detail.setAcct_no(acct_no);
-                detail.setBalance_before(banlanceBefore);
+                detail.setBalance_before(balanceBefore);
                 detail.setTrans_type("006");
                 detail.setTrans_amt(money);
                 detail.setTrans_date(date);
@@ -260,7 +260,7 @@ public class TransDeposit extends BankTrans {
                 String detailNo = detail.createDetailNo();
                 detail.setTrans_no(detailNo);
                 detail.setAcct_no(acct_no);
-                detail.setBalance_before(banlanceBefore);
+                detail.setBalance_before(balanceBefore);
                 detail.setTrans_type("006");
                 detail.setTrans_amt(money);
                 detail.setTrans_date(date);
@@ -352,7 +352,7 @@ public class TransDeposit extends BankTrans {
     /**
      * 打印凭证
      */
-    public void prtTransInfo(Acct acct) {
+    private void prtTransInfo(Acct acct) {
         System.out.println("交  易  码[" + trans_code + "]");
         System.out.println("交易名称[" + trans_name + "]");
         System.out.println("交易账户[" + acct_no + "]");
