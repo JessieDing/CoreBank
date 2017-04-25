@@ -16,11 +16,12 @@ public class SubAcct {
     private String sub_Id_type;//子账户类型001活期002整存整取003通知
     private double sub_acct_balance;//子账户余额
     private Date open_date;//起存日
-    private int due_date_for_Fixed;//到期日
+    private int fix_deposit_period;//定存期限
     private Date last_Inters_date;//上次结息日
     private int aggregate;//积数
     private int acct_status;// 状态 1-正常 2-销户 3-挂失 4-冻结
     private int call_day;//通知天数
+    private Date due_date;//到期日
     private ConnectMySql dbhelper;
 
     public SubAcct() {
@@ -39,11 +40,12 @@ public class SubAcct {
         strSQL.append(sub_Id_type).append("',");
         strSQL.append(sub_acct_balance).append(",'");
         strSQL.append(open_date).append("',");
-        strSQL.append(due_date_for_Fixed).append(",");
+        strSQL.append(fix_deposit_period).append(",");
         strSQL.append(last_Inters_date).append(",");
         strSQL.append(aggregate).append(",");
         strSQL.append(acct_status).append(",");
-        strSQL.append(call_day).append(")");
+        strSQL.append(call_day).append(",");
+        strSQL.append(due_date).append(")");
         System.out.println("SQL[" + strSQL + "]");
         return strSQL.toString();
     }
@@ -60,7 +62,7 @@ public class SubAcct {
         setSub_Id_type(sub_Id_type);
         setSub_acct_balance(deposit_amount);
         setOpen_date(openDate);
-        setDue_date_for_Fixed(days);//定存天数
+        setFix_deposit_period(days);//定存天数
 
         return regSubAcct();
     }
@@ -124,12 +126,12 @@ public class SubAcct {
         this.open_date = open_date;
     }
 
-    public int getDue_date_for_Fixed() {
-        return due_date_for_Fixed;
+    public int getFix_deposit_period() {
+        return fix_deposit_period;
     }
 
-    public void setDue_date_for_Fixed(int due_date_for_Fixed) {
-        this.due_date_for_Fixed = due_date_for_Fixed;
+    public void setFix_deposit_period(int fix_deposit_period) {
+        this.fix_deposit_period = fix_deposit_period;
     }
 
     public Date getLast_Inters_date() {
@@ -170,6 +172,13 @@ public class SubAcct {
 
     public void setdbhelper(ConnectMySql dbhelper) {
         this.dbhelper = dbhelper;
+    }
+
+    public Date getDue_date() {
+        return due_date;
+    }
+    public void setDue_date(Date due_date) {
+        this.due_date = due_date;
     }
 
     /**

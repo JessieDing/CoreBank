@@ -176,7 +176,7 @@ public class OpenAcct extends BankTrans {
         subAcct.setSub_Id_type(sub_Id_type);
         subAcct.setSub_acct_balance(sub_acct_balance);
         subAcct.setOpen_date(openDate);
-        subAcct.setDue_date_for_Fixed(0);
+        subAcct.setFix_deposit_period(0);
 
         return subAcct.regSubAcct();
     }
