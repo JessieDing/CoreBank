@@ -3,6 +3,9 @@ package busi.doSql;
 import db.ConnectMySql;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dell on 2017/4/24.
@@ -13,7 +16,7 @@ public class SubAcct {
     private String sub_Id_type;//子账户类型001活期002整存整取003通知
     private double sub_acct_balance;//子账户余额
     private Date open_date;//起存日
-    private Date due_date_for_Fixed;//到期日
+    private int due_date_for_Fixed;//到期日
     private Date last_Inters_date;//上次结息日
     private int aggregate;//积数
     private int acct_status;// 状态 1-正常 2-销户 3-挂失 4-冻结
@@ -36,7 +39,7 @@ public class SubAcct {
         strSQL.append(sub_acct_no).append("','");
         strSQL.append(sub_Id_type).append("',");
         strSQL.append(sub_acct_balance).append(",'");
-        strSQL.append(open_date).append("',");//设置了值用单引号
+        strSQL.append(open_date).append("',");
         strSQL.append(due_date_for_Fixed).append(",");
         strSQL.append(last_Inters_date).append(",");
         strSQL.append(aggregate).append(",");
@@ -46,7 +49,45 @@ public class SubAcct {
         return strSQL.toString();
     }
 
-    public String openDemandAcct(){
+    public String openFixedAcct(String acctNo,
+                              String Trans_no,
+                              String sub_Id_type,
+                              double deposit_amount,
+                              Date openDate,
+                              int days) {
+        setdbhelper(dbhelper);
+        setAcct_no(acctNo);
+        setSub_acct_no("2000" + Trans_no);
+        setSub_Id_type(sub_Id_type);
+        setSub_acct_balance(deposit_amount);
+        setOpen_date(openDate);
+        setDue_date_for_Fixed(days);//定存天数
+
+        return regSubAcct();
+    }
+
+    public String openCallAcct(String acctNo,
+                             String Trans_no,
+                             String sub_Id_type,
+                             double deposit_amount,
+                             Date openDate,
+                             int callDay) {
+
+        setdbhelper(dbhelper);
+        setAcct_no(acctNo);
+        setSub_acct_no("3000" + Trans_no);
+        setSub_Id_type(sub_Id_type);
+        setSub_acct_balance(deposit_amount);
+        setOpen_date(openDate);
+        setDue_date_for_Fixed(callDay);//通知期限（1天、7天）
+
+        return regSubAcct();
+    }
+
+
+
+    /* 写活期子账户
+    public String openDemandAcct() {
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("insert into t_sub_acct " +
                 "(Acct_No,Sub_acct_no,Sub_Id_type,Sub_Acct_balance,Open_date,sub_acct_status)" +
@@ -59,7 +100,7 @@ public class SubAcct {
 //        strSQL.append(aggregate).append(",");
         strSQL.append(acct_status).append(",");
         return strSQL.toString();
-    }
+    }*/
 
 
     public String getAcct_no() {
@@ -102,11 +143,11 @@ public class SubAcct {
         this.open_date = open_date;
     }
 
-    public Date getDue_date_for_Fixed() {
+    public int getDue_date_for_Fixed() {
         return due_date_for_Fixed;
     }
 
-    public void setDue_date_for_Fixed(Date due_date_for_Fixed) {
+    public void setDue_date_for_Fixed(int due_date_for_Fixed) {
         this.due_date_for_Fixed = due_date_for_Fixed;
     }
 
@@ -149,10 +190,32 @@ public class SubAcct {
     public void setdbhelper(ConnectMySql dbhelper) {
         this.dbhelper = dbhelper;
     }
-/*
-public String regDemandAcct(){
+    /**
+     * 验证子账户类型
+     *
+     * @throws Exception
+     */
+    public boolean isSubAcctTypeExist(String subAcctType) throws Exception {
         StringBuffer strSQL = new StringBuffer();
-        strSQL.append("insert into subacct_demand values('");
-}
-*/
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_Id_type = '");
+        strSQL.append(subAcctType);
+        strSQL.append("'");
+        System.out.println("SQL [" + strSQL + "]");
+        ResultSet rs = dbhelper.doQuery(strSQL.toString());
+        int num = 0;
+        try {
+            while (rs.next()) {
+                num++;
+                break;
+            }
+            if (num > 0) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
 }
