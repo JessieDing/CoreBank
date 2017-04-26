@@ -7,6 +7,7 @@ import db.ConnectMySql;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Calendar;
 
 public class OpenAcct extends BankTrans {
     private String id_type;// 证件类型
@@ -14,7 +15,7 @@ public class OpenAcct extends BankTrans {
     private String pwd;// 密码
     private String aginPwd;// 再次输入密码
     private ConnectMySql dbhelper;
-    private final static double DEFAULT_MIN_AMOUNT=10.00;
+    private final static double DEFAULT_MIN_AMOUNT = 10.00;
 
     public void prtPrompt() {
         System.out.println("》》》开户《《《");
@@ -142,13 +143,14 @@ public class OpenAcct extends BankTrans {
         detail.setOperator_id("001");
 
         //插入数据库t_sub_acct表
-
+        SubAcct subAcct = new SubAcct();
         Date date1 = acct.getReg_date();
-        String strRegSubAcct = openSubAcct(acctNo, detail.getTrans_no(), "001",DEFAULT_MIN_AMOUNT, date1);//默认活期子账户
+        //默认活期子账户
+        String strRegSubAcct = subAcct.openSubAcct(acctNo, detail.getTrans_no(), "001", DEFAULT_MIN_AMOUNT, date1, subAcct.setDate());
 //        double initBalance = acct.calcTotalBalance();
 //        acct.setBalance(initBalance);
 
-        if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail(),strRegSubAcct) < 0) {
+        if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail(), strRegSubAcct) < 0) {
             setTrans_result("开户失败!");
         }
         setTrans_result("开户成功");
@@ -161,46 +163,6 @@ public class OpenAcct extends BankTrans {
 
 
 
-
-    //活期
-    // 活期Sub_acct_no规则为1000+4位流水号
-    public String openSubAcct(String acctNo,
-                           String Trans_no,
-                           String sub_Id_type,
-                           double sub_acct_balance,
-                           Date openDate) {
-        SubAcct subAcct = new SubAcct();
-        subAcct.setdbhelper(dbhelper);
-        subAcct.setAcct_no(acctNo);
-        subAcct.setSub_acct_no("1000" + Trans_no);//默认活期子账户
-        subAcct.setSub_Id_type(sub_Id_type);
-        subAcct.setSub_acct_balance(sub_acct_balance);
-        subAcct.setOpen_date(openDate);
-        subAcct.setFix_deposit_period(0);
-
-        return subAcct.regSubAcct();
-    }
-
-
-
-    //通知存款
-    //通知存款Sub_acct_no规则为3000+4位流水号
-    public int openSubAcct2(String acctNo,
-                           String Trans_no,
-                           String sub_Id_type,
-                           double sub_acct_balance,
-                           Date openDate, int callDay) {
-        SubAcct subAcct = new SubAcct();
-        subAcct.setdbhelper(dbhelper);
-        subAcct.setAcct_no(acctNo);
-        subAcct.setSub_acct_no("3000" + Trans_no);
-        subAcct.setSub_Id_type(sub_Id_type);
-        subAcct.setSub_acct_balance(sub_acct_balance);
-        subAcct.setOpen_date(openDate);
-        subAcct.setCall_day(callDay);
-
-        return 0;
-    }
 
 
     public void setDbhelper(ConnectMySql dbhelper) {

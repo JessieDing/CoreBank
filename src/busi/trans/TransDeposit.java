@@ -124,6 +124,7 @@ public class TransDeposit extends BankTrans {
 
         // 存款
 
+        OpenAcct openAcct = new OpenAcct();
         SubAcct subAcct = new SubAcct();
         AcctDetail detail = new AcctDetail();
         double balanceBefore = acct.calcTotalBalance();
@@ -133,6 +134,9 @@ public class TransDeposit extends BankTrans {
             subAcct.setdbhelper(dbhelper);
             String subAcctNo = subAcct.getSubAcctNo(depositType);
             subAcct.setSub_acct_no(subAcctNo);
+            tmpMoney = money+subAcct.gainBalance();
+            subAcct.setSub_acct_balance(tmpMoney);
+
 
             date = new Date(new java.util.Date().getTime());
             detail.setdbhelper(dbhelper);
@@ -147,8 +151,9 @@ public class TransDeposit extends BankTrans {
             detail.setTrans_time(time);
             detail.setOperator_id("001");
 
-            String addDemandAcct = subAcct.insertIntoDemandAcct(acct_no,subAcctNo,"001",money,date);
-            if (dbhelper.insertIntoDBO(dbhelper, addDemandAcct) < 0) {
+            String insertDemandAcct = subAcct.depositSubAcct();
+//            String insertDemandAcct = subAcct.insertIntoDemandAcct(acct_no,subAcctNo,"001",tmpMoney,date);
+            if (dbhelper.insertIntoDBO(dbhelper, insertDemandAcct) < 0) {
                 setTrans_result("写入子账户失败!");
             }
             setTrans_result("成功写入子账户");
@@ -209,6 +214,7 @@ public class TransDeposit extends BankTrans {
         if (depositType.equals("003")) {
             subAcct.setdbhelper(dbhelper);
             if (!subAcct.isSubAcctTypeExist(depositType)) {
+                //新开通知存款子账户
                 date = new Date(new java.util.Date().getTime());
                 detail.setdbhelper(dbhelper);
                 String detailNo = detail.createDetailNo();
@@ -229,7 +235,7 @@ public class TransDeposit extends BankTrans {
                     setTrans_result("通知期限输入有误!");
                     return -1;
                 }
-                String addCalldAcct = subAcct.openCallAcct(acct_no, detail.getTrans_no(), "003", money, date, callDay);
+                String addCalldAcct = subAcct.openCallAcct(acct_no, detail.getTrans_no(), "003", money, date, callDay,subAcct.setDate());
                 if (dbhelper.insertIntoDBO(dbhelper, addCalldAcct) < 0) {
                     setTrans_result("写入子账户失败!");
                 }
@@ -249,11 +255,13 @@ public class TransDeposit extends BankTrans {
                 prtTransInfo(acct);
                 return 0;
             } else {
-                //已存在通知存款子账户，不再创建账户，
+                //已存在通知存款子账户，不再创建账户
                 String callAcctNo = subAcct.getSubAcctNo(depositType);
                 subAcct.setSub_acct_no(callAcctNo);
                 int callDay = subAcct.getCall_day();
                 subAcct.setCall_day(callDay);
+                tmpMoney = money+subAcct.gainBalance();//拿到唯一的通知子账户余额
+                subAcct.setSub_acct_balance(tmpMoney);
 
                 date = new Date(new java.util.Date().getTime());
                 detail.setdbhelper(dbhelper);
@@ -268,8 +276,8 @@ public class TransDeposit extends BankTrans {
                 detail.setTrans_time(time);
                 detail.setOperator_id("001");
 
-                String addCalldAcct = subAcct.insertIntoCallAcct(acct_no, subAcct.getSub_acct_no(), "003", money, date, subAcct.getCall_day());
-                if (dbhelper.insertIntoDBO(dbhelper, addCalldAcct) < 0) {
+                String insertCallAcct = subAcct.depositSubAcct();
+                if (dbhelper.insertIntoDBO(dbhelper, insertCallAcct) < 0) {
                     setTrans_result("写入子账户失败!");
                 }
                 setTrans_result("成功写入子账户");
@@ -284,7 +292,7 @@ public class TransDeposit extends BankTrans {
 
                 // 打印凭条
                 setTrans_code(detailNo);
-                setTrans_name(subAcct.getCall_day() + "天" + "通知存款");
+                setTrans_name(subAcct.gainCallDay() + "天" + "通知存款");
                 prtTransInfo(acct);
                 return 0;
             }

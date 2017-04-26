@@ -4,6 +4,7 @@ import db.ConnectMySql;
 
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.util.Calendar;
 
 /**
  * Created by dell on 2017/4/24.
@@ -72,12 +73,13 @@ public class SubAcct {
         return new Date(time); // 将毫秒数转换成日期
     }
 
+
     public String openCallAcct(String acctNo,
                                String Trans_no,
                                String sub_Id_type,
                                double deposit_amount,
                                Date openDate,
-                               int callDay) {
+                               int callDay,Date dueDate) {
 
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
@@ -86,6 +88,7 @@ public class SubAcct {
         setSub_acct_balance(deposit_amount);
         setOpen_date(openDate);
         setCall_day(callDay);//通知期限（1天、7天）
+        setDue_date(dueDate);
 
         return regSubAcct();
     }
@@ -258,17 +261,94 @@ public class SubAcct {
     public String insertIntoDemandAcct(String acctNo,
                                        String subAcctNo,
                                        String sub_Id_type,
-                                       double deposit_amount,
+                                       double balance,
                                        Date openDate) {
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
         setSub_acct_no(subAcctNo);
         setSub_Id_type(sub_Id_type);
-        setSub_acct_balance(deposit_amount);
+        setSub_acct_balance(balance);
         setOpen_date(openDate);
 
         return regSubAcct();
 
     }
 
+    //活期
+    // 活期Sub_acct_no规则为1000+4位流水号
+    public String openSubAcct(String acctNo,
+                              String Trans_no,
+                              String sub_Id_type,
+                              double sub_acct_balance,
+                              Date openDate, Date dueDate) {
+        SubAcct subAcct = new SubAcct();
+        subAcct.setdbhelper(dbhelper);
+        subAcct.setAcct_no(acctNo);
+        subAcct.setSub_acct_no("1000" + Trans_no);//默认活期子账户
+        subAcct.setSub_Id_type(sub_Id_type);
+        subAcct.setSub_acct_balance(sub_acct_balance);
+        subAcct.setOpen_date(openDate);
+        subAcct.setFix_deposit_period(0);
+        subAcct.setDue_date(dueDate);//活期如何设置到期日？？？
+
+        return subAcct.regSubAcct();
+    }
+
+
+    public String depositSubAcct() {
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("update t_sub_acct set Sub_Acct_balance =");
+        strSQL.append(sub_acct_balance);
+        strSQL.append(" where Sub_acct_no ='");
+        strSQL.append(sub_acct_no);
+        strSQL.append("'");
+        System.out.println("SQL [" + strSQL + "]");
+        return strSQL.toString();
+    }
+
+    public double gainBalance() {
+        double tmp = 0.00;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_acct_no = '");
+        strSQL.append(sub_acct_no);
+        strSQL.append("'");
+        // System.out.println("SQL [" + strSQL + "]");
+        try {
+            ResultSet rs = dbhelper.doQuery(strSQL.toString());
+            while (rs.next()) {
+                tmp = rs.getDouble("Sub_Acct_balance");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tmp;
+    }
+
+    public int gainCallDay(){
+        int callDay =0;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_acct_no = '");
+        strSQL.append(sub_acct_no);
+        strSQL.append("'");
+        try {
+            ResultSet rs = dbhelper.doQuery(strSQL.toString());
+            while (rs.next()) {
+                callDay = rs.getInt("call_day");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return callDay;
+    }
+
+
+     public Date setDate() {//设置活期到期日为0000-00-00
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(0000, 00, 00);
+        java.util.Date date = calendar.getTime();
+        java.sql.Date date1 = new java.sql.Date(date.getTime());
+        return date1;
+    }
 }
