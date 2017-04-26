@@ -4,7 +4,9 @@ import db.ConnectMySql;
 
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by dell on 2017/4/24.
@@ -79,7 +81,7 @@ public class SubAcct {
                                String sub_Id_type,
                                double deposit_amount,
                                Date openDate,
-                               int callDay,Date dueDate) {
+                               int callDay, Date dueDate) {
 
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
@@ -93,102 +95,6 @@ public class SubAcct {
         return regSubAcct();
     }
 
-
-    public String getAcct_no() {
-        return acct_no;
-    }
-
-    public void setAcct_no(String acct_no) {
-        this.acct_no = acct_no;
-    }
-
-    public String getSub_acct_no() {
-        return sub_acct_no;
-    }
-
-    public void setSub_acct_no(String sub_acct_no) {
-        this.sub_acct_no = sub_acct_no;
-    }
-
-    public String getSub_Id_type() {
-        return sub_Id_type;
-    }
-
-    public void setSub_Id_type(String sub_Id_type) {
-        this.sub_Id_type = sub_Id_type;
-    }
-
-    public double getSub_acct_balance() {
-        return sub_acct_balance;
-    }
-
-    public void setSub_acct_balance(double sub_acct_balance) {
-        this.sub_acct_balance = sub_acct_balance;
-    }
-
-    public Date getOpen_date() {
-        return open_date;
-    }
-
-    public void setOpen_date(Date open_date) {
-        this.open_date = open_date;
-    }
-
-    public int getFix_deposit_period() {
-        return fix_deposit_period;
-    }
-
-    public void setFix_deposit_period(int fix_deposit_period) {
-        this.fix_deposit_period = fix_deposit_period;
-    }
-
-    public Date getLast_Inters_date() {
-        return last_Inters_date;
-    }
-
-    public void setLast_Inters_date(Date last_Inters_date) {
-        this.last_Inters_date = last_Inters_date;
-    }
-
-    public int getAggregate() {
-        return aggregate;
-    }
-
-    public void setAggregate(int aggregate) {
-        this.aggregate = aggregate;
-    }
-
-    public int getCall_day() {
-        return call_day;
-    }
-
-    public void setCall_day(int call_day) {
-        this.call_day = call_day;
-    }
-
-    public int getAcct_status() {
-        return acct_status;
-    }
-
-    public void setAcct_status(int acct_status) {
-        this.acct_status = acct_status;
-    }
-
-    public ConnectMySql getdbhelper() {
-        return dbhelper;
-    }
-
-    public void setdbhelper(ConnectMySql dbhelper) {
-        this.dbhelper = dbhelper;
-    }
-
-    public Date getDue_date() {
-        return due_date;
-    }
-
-    public void setDue_date(Date due_date) {
-        this.due_date = due_date;
-    }
 
     /**
      * 验证子账户类型
@@ -313,7 +219,6 @@ public class SubAcct {
         strSQL.append(" where Sub_acct_no = '");
         strSQL.append(sub_acct_no);
         strSQL.append("'");
-        // System.out.println("SQL [" + strSQL + "]");
         try {
             ResultSet rs = dbhelper.doQuery(strSQL.toString());
             while (rs.next()) {
@@ -325,8 +230,8 @@ public class SubAcct {
         return tmp;
     }
 
-    public int gainCallDay(){
-        int callDay =0;
+    public int gainCallDay() {
+        int callDay = 0;
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("select * from t_sub_acct");
         strSQL.append(" where Sub_acct_no = '");
@@ -344,11 +249,145 @@ public class SubAcct {
     }
 
 
-     public Date setDate() {//设置活期到期日为0000-00-00
+    public Date setDate() {//设置活期到期日为0000-00-00
         Calendar calendar = Calendar.getInstance();
         calendar.set(0000, 00, 00);
         java.util.Date date = calendar.getTime();
         java.sql.Date date1 = new java.sql.Date(date.getTime());
         return date1;
     }
+
+
+    public void revokeAllSubBalance() {
+        List<String> acctNoList = new ArrayList<>();
+        StringBuffer strSQL1 = new StringBuffer();
+        strSQL1.append("select * from t_sub_acct");//sub_acct_status
+        strSQL1.append(" where acct_no = '");
+        strSQL1.append(acct_no);
+        strSQL1.append("'");
+
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL1.toString());
+            while (rs1.next()) {
+                String tmp = "";
+                tmp = rs1.getString("Sub_acct_no");
+                acctNoList.add(tmp);
+            }
+            for (String s : acctNoList) {
+                //遍历拿到的子账户，修改（update）balance为0和status为2
+                StringBuffer strSQL = new StringBuffer();
+                strSQL.append("update t_sub_acct set sub_acct_status =");
+                strSQL.append(2);
+                strSQL.append(",");
+                strSQL.append("Sub_Acct_balance =");
+                strSQL.append(0.00);
+                strSQL.append(" where Sub_acct_no ='");
+                strSQL.append(s);
+                strSQL.append("'");
+                System.out.println("SQL [" + strSQL + "]");
+                String sqlUpdate = strSQL.toString();
+                dbhelper.doUpdate(sqlUpdate);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public String getAcct_no() {
+        return acct_no;
+    }
+
+    public void setAcct_no(String acct_no) {
+        this.acct_no = acct_no;
+    }
+
+    public String getSub_acct_no() {
+        return sub_acct_no;
+    }
+
+    public void setSub_acct_no(String sub_acct_no) {
+        this.sub_acct_no = sub_acct_no;
+    }
+
+    public String getSub_Id_type() {
+        return sub_Id_type;
+    }
+
+    public void setSub_Id_type(String sub_Id_type) {
+        this.sub_Id_type = sub_Id_type;
+    }
+
+    public double getSub_acct_balance() {
+        return sub_acct_balance;
+    }
+
+    public void setSub_acct_balance(double sub_acct_balance) {
+        this.sub_acct_balance = sub_acct_balance;
+    }
+
+    public Date getOpen_date() {
+        return open_date;
+    }
+
+    public void setOpen_date(Date open_date) {
+        this.open_date = open_date;
+    }
+
+    public int getFix_deposit_period() {
+        return fix_deposit_period;
+    }
+
+    public void setFix_deposit_period(int fix_deposit_period) {
+        this.fix_deposit_period = fix_deposit_period;
+    }
+
+    public Date getLast_Inters_date() {
+        return last_Inters_date;
+    }
+
+    public void setLast_Inters_date(Date last_Inters_date) {
+        this.last_Inters_date = last_Inters_date;
+    }
+
+    public int getAggregate() {
+        return aggregate;
+    }
+
+    public void setAggregate(int aggregate) {
+        this.aggregate = aggregate;
+    }
+
+    public int getCall_day() {
+        return call_day;
+    }
+
+    public void setCall_day(int call_day) {
+        this.call_day = call_day;
+    }
+
+    public int getAcct_status() {
+        return acct_status;
+    }
+
+    public void setAcct_status(int acct_status) {
+        this.acct_status = acct_status;
+    }
+
+    public ConnectMySql getdbhelper() {
+        return dbhelper;
+    }
+
+    public void setdbhelper(ConnectMySql dbhelper) {
+        this.dbhelper = dbhelper;
+    }
+
+    public Date getDue_date() {
+        return due_date;
+    }
+
+    public void setDue_date(Date due_date) {
+        this.due_date = due_date;
+    }
+
 }
