@@ -146,7 +146,6 @@ public class AccountCancellation extends BankTrans {
         SubAcct subAcct = new SubAcct();
         subAcct.setAcct_no(acct_no);
         subAcct.setdbhelper(dbhelper);
-        InterestCalculation interestCalculator = new InterestCalculation();
         System.out.println("请输入需要撤销的账户类型：");
         System.out.println("001-活期账户（总账户）/ 002-整存整取账户 / 003-通知存款账户");
         Scanner scanner = new Scanner(System.in);
@@ -183,13 +182,10 @@ public class AccountCancellation extends BankTrans {
 //            subAcct.setDate(2017,07,25);//设置销户时间
             int fixDepositdays = subAcct.findFixedDepositPeriod(subAcctNo);//定存期限
             Date openDate = subAcct.findDate(subAcctNo);//该笔定存开户日
-            Calendar calendar = Calendar.getInstance();
-            long time1 = openDate.getTime();
-            long time2 = closeDate.getTime();
-            int actualDepositDays = new Long((time1 - time2) / (24 * 3600 * 1000)).intValue();//实际存款天数
-            if (actualDepositDays==fixDepositdays){
+            double amount = subAcct.findFixedDepositAmount(subAcctNo);//该笔定存本金
+            double interest = calcInterestsForRevokeFixedAcct(openDate,closeDate,fixDepositdays,amount);//该笔定存利息
 
-            }
+
 
 
         }
@@ -205,6 +201,52 @@ public class AccountCancellation extends BankTrans {
 //		}
 //		setTrans_result("销户成功");
         return 0;
+    }
+
+    public double calcInterestsForRevokeFixedAcct(Date openDate, Date closeDate, int fixDepositTerm, double amount) {
+        double inter = 0.00;
+        Calendar calendar = Calendar.getInstance();
+        long time1 = openDate.getTime();
+        long time2 = closeDate.getTime();
+        int actualDepositDays = new Long((time1 - time2) / (24 * 3600 * 1000)).intValue();//实际存款天数
+        InterestCalculation interestCalculator = new InterestCalculation();
+
+        //销户时定存期限刚好满足
+        if (actualDepositDays == fixDepositTerm) {
+            if (fixDepositTerm == 90) {
+                inter = interestCalculator.calcThreeMonInter(amount);
+//                return inter;
+            }
+            if (fixDepositTerm == 180) {
+                inter = interestCalculator.calcSixMonInter(amount);
+//                return inter;
+            }
+            if (fixDepositTerm == 360) {
+                inter = interestCalculator.calcOneYearInter(amount);
+//                return inter;
+            }
+            if (fixDepositTerm == 720) {
+                inter = interestCalculator.calcTwoYearInter(amount);
+//                return inter;
+            }
+            if (fixDepositTerm == 1080) {
+                inter = interestCalculator.calcThreeYearInter(amount);
+//                return inter;
+            }
+        }
+
+        //销户时定存未到期，按活期利率计算
+        if (actualDepositDays < fixDepositTerm) {
+//......
+
+        }
+
+        //销户时已超过定存期限，超出部分按活期利率计算（积数计息）
+        if (actualDepositDays < fixDepositTerm) {
+//......
+
+        }
+        return inter;
     }
 
     @Override

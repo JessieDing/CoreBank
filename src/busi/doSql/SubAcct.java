@@ -29,7 +29,7 @@ public class SubAcct {
     }
 
     /**
-     * 子账户
+     * sql语句 - 用于插入子账户数据表
      *
      * @return
      */
@@ -51,6 +51,7 @@ public class SubAcct {
         return strSQL.toString();
     }
 
+    /*建立 定期存款 子账户*/
     public String openFixedAcct(String acctNo,
                                 String Trans_no,
                                 String sub_Id_type,
@@ -68,6 +69,7 @@ public class SubAcct {
         return regSubAcct();
     }
 
+    /*日期计算 - 计算定存到期日：dueDate=openDate + fixedDepositDays*/
     private static Date addDay(Date date, long day) {
         long time = date.getTime(); // 得到指定日期的毫秒数
         day = day * 24 * 60 * 60 * 1000; // 要加上的天数转换成毫秒数
@@ -75,7 +77,7 @@ public class SubAcct {
         return new Date(time); // 将毫秒数转换成日期
     }
 
-
+/*建立 通知存款 子账户*/
     public String openCallAcct(String acctNo,
                                String Trans_no,
                                String sub_Id_type,
@@ -97,8 +99,8 @@ public class SubAcct {
 
 
     /**
-     * 验证子账户类型
-     *
+     * 验证子账户是否存在
+     *用于活期存款和通知存款
      * @throws Exception
      */
     public boolean isSubAcctTypeExist(String subAcctType, String acctNo) throws Exception {
@@ -129,6 +131,7 @@ public class SubAcct {
         return false;
     }
 
+    /*取得除定存账户外，活期或通知账户的子账户账号*/
     public String getSubAcctNo(String subAcctType) {
         String tmp = "";
         StringBuilder strSQL1 = new StringBuilder();
@@ -151,42 +154,8 @@ public class SubAcct {
         return tmp;
     }
 
-    public String insertIntoCallAcct(String acctNo,
-                                     String subAcctNo,
-                                     String sub_Id_type,
-                                     double deposit_amount,
-                                     Date openDate,
-                                     int callDay) {
 
-        setdbhelper(dbhelper);
-        setAcct_no(acctNo);
-        setSub_acct_no(subAcctNo);
-        setSub_Id_type(sub_Id_type);
-        setSub_acct_balance(deposit_amount);
-        setOpen_date(openDate);
-        setCall_day(callDay);
-
-        return regSubAcct();
-    }
-
-    /*插入001类（活期）子账户数据表*/
-    public String insertIntoDemandAcct(String acctNo,
-                                       String subAcctNo,
-                                       String sub_Id_type,
-                                       double balance,
-                                       Date openDate) {
-        setdbhelper(dbhelper);
-        setAcct_no(acctNo);
-        setSub_acct_no(subAcctNo);
-        setSub_Id_type(sub_Id_type);
-        setSub_acct_balance(balance);
-        setOpen_date(openDate);
-
-        return regSubAcct();
-
-    }
-
-    //活期
+    /*建立 活期存款  子账户 - 开户时一并开设活期子账户*/
     // 活期Sub_acct_no规则为1000+4位流水号
     public String openSubAcct(String acctNo,
                               String Trans_no,
@@ -201,12 +170,12 @@ public class SubAcct {
         subAcct.setSub_acct_balance(sub_acct_balance);
         subAcct.setOpen_date(openDate);
         subAcct.setFix_deposit_period(0);
-        subAcct.setDue_date(dueDate);//活期如何设置到期日？？？
+        subAcct.setDue_date(dueDate);//活期到期日统一标记为0002-12-31
 
         return subAcct.regSubAcct();
     }
 
-
+/*sql语句- 改变某个子账户余额*/
     public String depositSubAcct() {
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("update t_sub_acct set Sub_Acct_balance =");
@@ -218,6 +187,7 @@ public class SubAcct {
         return strSQL.toString();
     }
 
+    /*取得该条子账户余额信息*/
     public double gainBalance() {
         double tmp = 0.00;
         StringBuffer strSQL = new StringBuffer();
@@ -236,6 +206,7 @@ public class SubAcct {
         return tmp;
     }
 
+    /*取得通知存款的通知期限*/
     public int gainCallDay() {
         int callDay = 0;
         StringBuffer strSQL = new StringBuffer();
@@ -253,8 +224,8 @@ public class SubAcct {
         }
         return callDay;
     }
-
-    public Date setDate(int aaaa, int bb, int cc) {//设置活期到期日为0000-00-00
+/*手动设置日期，返回sql Date类型*/
+    public Date setDate(int aaaa, int bb, int cc) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(aaaa, bb, cc);
         java.util.Date date = calendar.getTime();
@@ -270,7 +241,7 @@ public class SubAcct {
         return date1;
     }
 
-
+/*撤销所有子账户，余额归零，状态转2*/
     public void revokeAllSubBalance() {
         List<String> acctNoList = new ArrayList<>();
         StringBuffer strSQL1 = new StringBuffer();
@@ -368,12 +339,25 @@ public class SubAcct {
         return days;
     }
 
-    /*计算利息*/
-    public double calcInterest(){
-        double interest = 0;
+    /*查找定存金额*/
+    public double findFixedDepositAmount(String subAcctNo){
+        double amount =0;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_acct_no = '");
+        strSQL.append(subAcctNo);
+        strSQL.append("'");
 
-
-        return interest;
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL.toString());
+            while (rs1.next()) {
+                amount = rs1.getDouble("Sub_Acct_balance");
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return amount;
     }
 
 
