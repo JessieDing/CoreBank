@@ -101,11 +101,14 @@ public class SubAcct {
      *
      * @throws Exception
      */
-    public boolean isSubAcctTypeExist(String subAcctType) throws Exception {
+    public boolean isSubAcctTypeExist(String subAcctType, String acctNo) throws Exception {
         StringBuilder strSQL = new StringBuilder();
         strSQL.append("select * from t_sub_acct");
         strSQL.append(" where Sub_Id_type='");
         strSQL.append(subAcctType);
+        strSQL.append("'");
+        strSQL.append("and ACCT_NO ='");
+        strSQL.append(acctNo);
         strSQL.append("'");
         System.out.println("SQL [" + strSQL + "]");
 
@@ -132,6 +135,9 @@ public class SubAcct {
         strSQL1.append("select * from t_sub_acct");
         strSQL1.append(" where Sub_Id_type = '");
         strSQL1.append(subAcctType);
+        strSQL1.append("'");
+        strSQL1.append("and ACCT_NO ='");
+        strSQL1.append(acct_no);
         strSQL1.append("'");
         try {
             ResultSet rs1 = dbhelper.doQuery(strSQL1.toString());
@@ -248,10 +254,17 @@ public class SubAcct {
         return callDay;
     }
 
+    public Date setDate(int aaaa, int bb, int cc) {//设置活期到期日为0000-00-00
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(aaaa, bb, cc);
+        java.util.Date date = calendar.getTime();
+        java.sql.Date date1 = new java.sql.Date(date.getTime());
+        return date1;
+    }
 
     public Date setDate() {//设置活期到期日为0000-00-00
         Calendar calendar = Calendar.getInstance();
-        calendar.set(0000, 00, 00);
+        calendar.set(0, 0, 0);
         java.util.Date date = calendar.getTime();
         java.sql.Date date1 = new java.sql.Date(date.getTime());
         return date1;
@@ -291,6 +304,76 @@ public class SubAcct {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    /*用于查找活期、通知存款的openDate*/
+    public Date findDate(String sub_Id_type, String dateName) {
+        Date date = null;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where acct_no = '");
+        strSQL.append(acct_no);
+        strSQL.append("'");
+        strSQL.append("and Sub_Id_type ='");
+        strSQL.append(sub_Id_type);
+        strSQL.append("'");
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL.toString());
+            while (rs1.next()) {
+                date = rs1.getDate(dateName);//传入数据表字段名
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    /*查找定存openDate*/
+    public Date findDate(String subAcctNo) {
+        Date date = null;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_acct_no = '");
+        strSQL.append(subAcctNo);
+        strSQL.append("'");
+
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL.toString());
+            while (rs1.next()) {
+                date = rs1.getDate("Open_date");//传入数据表字段名
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    /*查找定存期限*/
+    public int findFixedDepositPeriod(String subAcctNo){
+        int days =0;
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Sub_acct_no = '");
+        strSQL.append(subAcctNo);
+        strSQL.append("'");
+
+        try {
+            ResultSet rs1 = dbhelper.doQuery(strSQL.toString());
+            while (rs1.next()) {
+                days = rs1.getInt("fix_deposit_period");
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return days;
+    }
+
+    /*计算利息*/
+    public double calcInterest(){
+        double interest = 0;
+
+
+        return interest;
     }
 
 

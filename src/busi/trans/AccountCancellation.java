@@ -2,6 +2,7 @@ package busi.trans;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Calendar;
 import java.util.Scanner;
 
 import busi.BankTrans;
@@ -143,6 +144,9 @@ public class AccountCancellation extends BankTrans {
         detail.setOperator_id("001");
 
         SubAcct subAcct = new SubAcct();
+        subAcct.setAcct_no(acct_no);
+        subAcct.setdbhelper(dbhelper);
+        InterestCalculation interestCalculator = new InterestCalculation();
         System.out.println("请输入需要撤销的账户类型：");
         System.out.println("001-活期账户（总账户）/ 002-整存整取账户 / 003-通知存款账户");
         Scanner scanner = new Scanner(System.in);
@@ -151,8 +155,6 @@ public class AccountCancellation extends BankTrans {
         if (revokeType.equals("001")) {
 
             /*所有子账户balance归零，status转为2*/
-            subAcct.setAcct_no(acct_no);
-            subAcct.setdbhelper(dbhelper);
             subAcct.revokeAllSubBalance();
 
             /*主账户balance归零*/
@@ -168,6 +170,29 @@ public class AccountCancellation extends BankTrans {
         }
 
         //销户 - 定期账户
+        if (revokeType.equals("002")) {
+            Scanner scann = new Scanner(System.in);
+            System.out.println("请输入要撤销的子账户账号：");//整存整取账户有多个，需要输入子账号进行销户
+            String subAcctNo = scann.next();
+            System.out.println("整存整取账户" + subAcctNo + "开始销户...");
+            System.out.println("请输入取款年月日，以空格隔开，例如：2017 07 25");
+            int year = scann.nextInt();
+            int month = scann.nextInt();
+            int day = scann.nextInt();
+            Date closeDate = subAcct.setDate(year, month, day);//设置销户时间（取出定存款）
+//            subAcct.setDate(2017,07,25);//设置销户时间
+            int fixDepositdays = subAcct.findFixedDepositPeriod(subAcctNo);//定存期限
+            Date openDate = subAcct.findDate(subAcctNo);//该笔定存开户日
+            Calendar calendar = Calendar.getInstance();
+            long time1 = openDate.getTime();
+            long time2 = closeDate.getTime();
+            int actualDepositDays = new Long((time1 - time2) / (24 * 3600 * 1000)).intValue();//实际存款天数
+            if (actualDepositDays==fixDepositdays){
+
+            }
+
+
+        }
 
         //销户 - 通知账户
 

@@ -126,6 +126,7 @@ public class TransDeposit extends BankTrans {
 
         OpenAcct openAcct = new OpenAcct();
         SubAcct subAcct = new SubAcct();
+        subAcct.setAcct_no(acct_no);
         AcctDetail detail = new AcctDetail();
         double balanceBefore = acct.calcTotalBalance();
 
@@ -213,7 +214,7 @@ public class TransDeposit extends BankTrans {
         //通知存款
         if (depositType.equals("003")) {
             subAcct.setdbhelper(dbhelper);
-            if (!subAcct.isSubAcctTypeExist(depositType)) {
+            if (!subAcct.isSubAcctTypeExist(depositType,acct_no)) {
                 //新开通知存款子账户
                 date = new Date(new java.util.Date().getTime());
                 detail.setdbhelper(dbhelper);
