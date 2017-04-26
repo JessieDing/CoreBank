@@ -77,7 +77,7 @@ public class SubAcct {
         return new Date(time); // 将毫秒数转换成日期
     }
 
-/*建立 通知存款 子账户*/
+    /*建立 通知存款 子账户*/
     public String openCallAcct(String acctNo,
                                String Trans_no,
                                String sub_Id_type,
@@ -100,7 +100,8 @@ public class SubAcct {
 
     /**
      * 验证子账户是否存在
-     *用于活期存款和通知存款
+     * 用于活期存款和通知存款
+     *
      * @throws Exception
      */
     public boolean isSubAcctTypeExist(String subAcctType, String acctNo) throws Exception {
@@ -175,7 +176,7 @@ public class SubAcct {
         return subAcct.regSubAcct();
     }
 
-/*sql语句- 改变某个子账户余额*/
+    /*sql语句- 改变某个子账户余额*/
     public String depositSubAcct() {
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("update t_sub_acct set Sub_Acct_balance =");
@@ -224,7 +225,8 @@ public class SubAcct {
         }
         return callDay;
     }
-/*手动设置日期，返回sql Date类型*/
+
+    /*手动设置日期，返回sql Date类型*/
     public Date setDate(int aaaa, int bb, int cc) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(aaaa, bb, cc);
@@ -241,7 +243,7 @@ public class SubAcct {
         return date1;
     }
 
-/*撤销所有子账户，余额归零，状态转2*/
+    /*撤销所有子账户，余额归零，状态转2*/
     public void revokeAllSubBalance() {
         List<String> acctNoList = new ArrayList<>();
         StringBuffer strSQL1 = new StringBuffer();
@@ -276,6 +278,21 @@ public class SubAcct {
             e.printStackTrace();
         }
     }
+
+    /*sql语句- 用于撤销子账户，整存，余额归零，状态转2*/
+    public String revokeSubAcct() {
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("update t_sub_acct set Sub_Acct_balance =");
+        strSQL.append(sub_acct_balance);
+        strSQL.append(",sub_acct_status =");
+        strSQL.append(2);
+        strSQL.append(" where Sub_acct_no ='");
+        strSQL.append(sub_acct_no);
+        strSQL.append("'");
+        System.out.println("SQL [" + strSQL + "]");
+        return strSQL.toString();
+    }
+
     /*用于查找活期、通知存款的openDate*/
     public Date findDate(String sub_Id_type, String dateName) {
         Date date = null;
@@ -319,8 +336,8 @@ public class SubAcct {
     }
 
     /*查找定存期限*/
-    public int findFixedDepositPeriod(String subAcctNo){
-        int days =0;
+    public int findFixedDepositPeriod(String subAcctNo) {
+        int days = 0;
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("select * from t_sub_acct");
         strSQL.append(" where Sub_acct_no = '");
@@ -340,8 +357,8 @@ public class SubAcct {
     }
 
     /*查找定存金额*/
-    public double findFixedDepositAmount(String subAcctNo){
-        double amount =0;
+    public double findFixedDepositAmount(String subAcctNo) {
+        double amount = 0;
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("select * from t_sub_acct");
         strSQL.append(" where Sub_acct_no = '");
@@ -358,6 +375,29 @@ public class SubAcct {
             e.printStackTrace();
         }
         return amount;
+    }
+
+    /*查找活期子账户 账号，依据acctNo + 001*/
+    public String findDemandAcctNo(String acctNo) {
+        String demandAcctNo = "";
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Acct_No = '");
+        strSQL.append(acctNo);
+        strSQL.append("'");
+        strSQL.append("and Sub_Id_type ='001'");
+
+
+        try {
+            ResultSet rsl = dbhelper.doQuery(strSQL.toString());
+            while (rsl.next()) {
+                rsl.getString("Sub_acct_no");
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return demandAcctNo;
     }
 
 

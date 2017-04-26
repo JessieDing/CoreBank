@@ -720,5 +720,15 @@ public class Acct {
         return sum;
     }
 
+    public String changeAcctBalance(){
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("update t_acct set BALANCE =");
+        strSQL.append(balance);
+        strSQL.append(" where ACCT_NO ='");
+        strSQL.append(acct_no);
+        strSQL.append("'");
+        System.out.println("SQL [" + strSQL + "]");
+        return strSQL.toString();
+    }
 
 }

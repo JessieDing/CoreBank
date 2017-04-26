@@ -180,14 +180,33 @@ public class AccountCancellation extends BankTrans {
             int day = scann.nextInt();
             Date closeDate = subAcct.setDate(year, month, day);//设置销户时间（取出定存款）
 //            subAcct.setDate(2017,07,25);//设置销户时间
-            int fixDepositdays = subAcct.findFixedDepositPeriod(subAcctNo);//定存期限
-            Date openDate = subAcct.findDate(subAcctNo);//该笔定存开户日
-            double amount = subAcct.findFixedDepositAmount(subAcctNo);//该笔定存本金
-            double interest = calcInterestsForRevokeFixedAcct(openDate,closeDate,fixDepositdays,amount);//该笔定存利息
+            int fixDepositdays = subAcct.findFixedDepositPeriod(subAcctNo);//取得定存期限
+            Date openDate = subAcct.findDate(subAcctNo);//取得该笔定存开户日
+            double amount = subAcct.findFixedDepositAmount(subAcctNo);//取得该笔定存本金
+            double interest = calcInterestsForRevokeFixedAcct(openDate, closeDate, fixDepositdays, amount);//计算该笔定存利息
 
+            //该定存子账户的 利息+本金 转入 相应 活期子账户balance字段（活期子账户只有一个，用acctNo + 001找）
+            String demandAcctNo = subAcct.findDemandAcctNo(acct_no);
+            subAcct.setSub_acct_no(demandAcctNo);
+            double demandAcctBalance = subAcct.gainBalance();//取得相应活期子账户余额
+            double tmpMoney = demandAcctBalance + amount + interest;//将撤销的定存账户金额转移到活期子账户上
+            subAcct.setSub_acct_balance(tmpMoney);
+            String changeDemandAcctBalanceSQL = subAcct.depositSubAcct();
+            dbhelper.doUpdate(changeDemandAcctBalanceSQL);
 
+            //更改 该定存子账户balance=0,status=2
+            subAcct.setSub_acct_no(subAcctNo);
+            subAcct.setSub_acct_balance(0.00);
+            subAcct.setAcct_status(2);
+            String revokeFixAcctSQL = subAcct.revokeSubAcct();
+            dbhelper.doUpdate(revokeFixAcctSQL);
 
-
+            //跑一次总账户余额变化
+            double acctTotalBal = acct.calcTotalBalance();
+            acct.setBalance(acctTotalBal);
+            String changeAcctBalance = acct.changeAcctBalance();
+            dbhelper.doUpdate(changeAcctBalance);
+            
         }
 
         //销户 - 通知账户
