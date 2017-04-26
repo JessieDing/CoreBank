@@ -227,7 +227,7 @@ public class AccountCancellation extends BankTrans {
         Calendar calendar = Calendar.getInstance();
         long time1 = openDate.getTime();
         long time2 = closeDate.getTime();
-        int actualDepositDays = new Long((time1 - time2) / (24 * 3600 * 1000)).intValue();//实际存款天数
+        int actualDepositDays = new Long((time2 - time1) / (24 * 3600 * 1000)).intValue();//实际存款天数
         InterestCalculation interestCalculator = new InterestCalculation();
 
         //销户时定存期限刚好满足

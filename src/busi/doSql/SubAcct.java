@@ -229,7 +229,7 @@ public class SubAcct {
     /*手动设置日期，返回sql Date类型*/
     public Date setDate(int aaaa, int bb, int cc) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(aaaa, bb, cc);
+        calendar.set(aaaa, bb-1, cc);
         java.util.Date date = calendar.getTime();
         java.sql.Date date1 = new java.sql.Date(date.getTime());
         return date1;
@@ -391,8 +391,7 @@ public class SubAcct {
         try {
             ResultSet rsl = dbhelper.doQuery(strSQL.toString());
             while (rsl.next()) {
-                rsl.getString("Sub_acct_no");
-                break;
+                demandAcctNo = rsl.getString("Sub_acct_no");
             }
         } catch (Exception e) {
             e.printStackTrace();
