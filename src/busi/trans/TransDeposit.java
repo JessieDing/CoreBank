@@ -191,7 +191,7 @@ public class TransDeposit extends BankTrans {
             System.out.println("请输入定存期限（90/ 180/ 360/ 720/ 1080）：");
             Scanner scanner = new Scanner(System.in);
             int day = scanner.nextInt();
-            String addfixedAcct = subAcct.openFixedAcct(acct_no, detail.getTrans_no(), "002", money, date, day);
+            String addfixedAcct = subAcct.openFixedAcct(acct_no, detail.getTrans_no(), "002", money, date, day,1);
             if (dbhelper.insertIntoDBO(dbhelper, addfixedAcct) < 0) {
                 setTrans_result("写入子账户失败!");
             }
@@ -236,7 +236,7 @@ public class TransDeposit extends BankTrans {
                     setTrans_result("通知期限输入有误!");
                     return -1;
                 }
-                String addCalldAcct = subAcct.openCallAcct(acct_no, detail.getTrans_no(), "003", money, date, callDay,subAcct.setDate());
+                String addCalldAcct = subAcct.openCallAcct(acct_no, detail.getTrans_no(), "003", money, date, callDay,subAcct.setDate(),1);
                 if (dbhelper.insertIntoDBO(dbhelper, addCalldAcct) < 0) {
                     setTrans_result("写入子账户失败!");
                 }

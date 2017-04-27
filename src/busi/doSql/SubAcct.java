@@ -57,7 +57,7 @@ public class SubAcct {
                                 String sub_Id_type,
                                 double deposit_amount,
                                 Date openDate,
-                                int days) {
+                                int days, int status) {
         this.acct_no = acctNo;
         this.sub_acct_no = "2000" + Trans_no;
         this.sub_Id_type = sub_Id_type;
@@ -65,6 +65,7 @@ public class SubAcct {
         this.open_date = openDate;
         this.due_date = addDay(openDate, days);
         this.fix_deposit_period = days;//定存天数
+        this.acct_status = status;
 
         return regSubAcct();
     }
@@ -83,7 +84,9 @@ public class SubAcct {
                                String sub_Id_type,
                                double deposit_amount,
                                Date openDate,
-                               int callDay, Date dueDate) {
+                               int callDay,
+                               Date dueDate,
+                               int status) {
 
         setdbhelper(dbhelper);
         setAcct_no(acctNo);
@@ -93,6 +96,7 @@ public class SubAcct {
         setOpen_date(openDate);
         setCall_day(callDay);//通知期限（1天、7天）
         setDue_date(dueDate);
+        setAcct_status(status);
 
         return regSubAcct();
     }
@@ -162,7 +166,7 @@ public class SubAcct {
                               String Trans_no,
                               String sub_Id_type,
                               double sub_acct_balance,
-                              Date openDate, Date dueDate) {
+                              Date openDate, Date dueDate, int status) {
         SubAcct subAcct = new SubAcct();
         subAcct.setdbhelper(dbhelper);
         subAcct.setAcct_no(acctNo);
@@ -172,6 +176,7 @@ public class SubAcct {
         subAcct.setOpen_date(openDate);
         subAcct.setFix_deposit_period(0);
         subAcct.setDue_date(dueDate);//活期到期日统一标记为0002-12-31
+        subAcct.setAcct_status(status);
 
         return subAcct.regSubAcct();
     }
@@ -229,7 +234,7 @@ public class SubAcct {
     /*手动设置日期，返回sql Date类型*/
     public Date setDate(int aaaa, int bb, int cc) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(aaaa, bb-1, cc);
+        calendar.set(aaaa, bb - 1, cc);
         java.util.Date date = calendar.getTime();
         java.sql.Date date1 = new java.sql.Date(date.getTime());
         return date1;
@@ -356,8 +361,8 @@ public class SubAcct {
         return days;
     }
 
-    /*查找定存金额*/
-    public double findFixedDepositAmount(String subAcctNo) {
+    /*查找活期子账户、定存、通知存款金额，依据子账号*/
+    public double findSubAcctAmount(String subAcctNo) {
         double amount = 0;
         StringBuffer strSQL = new StringBuffer();
         strSQL.append("select * from t_sub_acct");
@@ -397,6 +402,28 @@ public class SubAcct {
             e.printStackTrace();
         }
         return demandAcctNo;
+    }
+
+    /*查找通知存款子账户 账号，依据acctNo + 003*/
+    public String findCallAcctNo(String acctNo) {
+        String callAcctNo = "";
+        StringBuffer strSQL = new StringBuffer();
+        strSQL.append("select * from t_sub_acct");
+        strSQL.append(" where Acct_No = '");
+        strSQL.append(acctNo);
+        strSQL.append("'");
+        strSQL.append("and Sub_Id_type ='003'");
+
+
+        try {
+            ResultSet rsl = dbhelper.doQuery(strSQL.toString());
+            while (rsl.next()) {
+                callAcctNo = rsl.getString("Sub_acct_no");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return callAcctNo;
     }
 
 

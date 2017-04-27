@@ -145,11 +145,8 @@ public class OpenAcct extends BankTrans {
         //插入数据库t_sub_acct表
         SubAcct subAcct = new SubAcct();
         Date date1 = acct.getReg_date();
-        //默认活期子账户
-        String strRegSubAcct = subAcct.openSubAcct(acctNo, detail.getTrans_no(), "001", DEFAULT_MIN_AMOUNT, date1, subAcct.setDate());
-//        double initBalance = acct.calcTotalBalance();
-//        acct.setBalance(initBalance);
-
+        //默认创建活期子账户
+        String strRegSubAcct = subAcct.openSubAcct(acctNo, detail.getTrans_no(), "001", DEFAULT_MIN_AMOUNT, date1, subAcct.setDate(),1);
         if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail(), strRegSubAcct) < 0) {
             setTrans_result("开户失败!");
         }
