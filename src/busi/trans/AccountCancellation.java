@@ -123,29 +123,19 @@ public class AccountCancellation extends BankTrans {
                 return -1;
             }
         }
+
         // 将这次操作写入账户操作表
         AcctOperation acctOpr = new AcctOperation();
-        acctOpr.setDbhelper(dbhelper);
-        Date date = new Date(new java.util.Date().getTime());
-        acctOpr.setAcct_no(acct_no);
-        acctOpr.setOpr_type("008");
-        acctOpr.setOpr_date(date);
-        acctOpr.setOpr_time(new Time(new java.util.Date().getTime()));
+        setOperationForAcctCancel(acctOpr);
 
-        AcctDetail detail = new AcctDetail();
-        detail.setdbhelper(dbhelper);
-        detail.setTrans_no(detail.createDetailNo());
-        detail.setAcct_no(acct_no);
-        detail.setBalance_before(acct.gainBalance());
-        detail.setTrans_type(acctOpr.getOpr_type());
-        detail.setTrans_amt(acct.gainBalance());
-        detail.setTrans_date(date);
-        detail.setTrans_time(new Time(new java.util.Date().getTime()));
-        detail.setOperator_id("001");
+        // 写入交易明细
+        AcctDetail acctDetail = new AcctDetail();
+        setDetail(acct, acctOpr, acctDetail);
 
         SubAcct subAcct = new SubAcct();
         subAcct.setAcct_no(acct_no);
         subAcct.setdbhelper(dbhelper);
+
         System.out.println("请输入需要撤销的账户类型：");
         System.out.println("001-活期账户（总账户）/ 002-整存整取账户 / 003-通知存款账户");
         Scanner scanner = new Scanner(System.in);
@@ -159,11 +149,11 @@ public class AccountCancellation extends BankTrans {
             /*主账户balance归零*/
             acct.setAcct_status(REVOKED_STATUS);
             acct.setBalance(0.00);
-            detail.setBalance_after(0.0);
+            acctDetail.setBalance_after(0.0);
             if (dbhelper.insertIntoDBO(
-                    dbhelper, acct.revokeAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail()
+                    dbhelper, acct.revokeAcct(), acctOpr.addAcctOperation(), acctDetail.addAcctDetail()
             ) < 0) {
-                setTrans_result("取钱失败!");
+                setTrans_result("销户失败!");
             }
             setTrans_result("销户成功");
         }
@@ -176,7 +166,15 @@ public class AccountCancellation extends BankTrans {
             double acctTotalBal = acct.calcTotalBalance();
             acct.setBalance(acctTotalBal);
             String changeAcctBalance = acct.changeAcctBalance();
-            dbhelper.doUpdate(changeAcctBalance);
+//            dbhelper.doUpdate(changeAcctBalance);
+
+            acctDetail.setBalance_after(acctTotalBal);
+            if (dbhelper.insertIntoDBO(
+                    dbhelper, changeAcctBalance, acctOpr.addAcctOperation(), acctDetail.addAcctDetail()
+            ) < 0) {
+                setTrans_result("定存账户销户失败!");
+            }
+            setTrans_result("定存账户销户成功");
         }
 
         //销户 - 通知账户
@@ -186,7 +184,15 @@ public class AccountCancellation extends BankTrans {
             double acctTotalBal = acct.calcTotalBalance();
             acct.setBalance(acctTotalBal);
             String changeAcctBalance = acct.changeAcctBalance();
-            dbhelper.doUpdate(changeAcctBalance);
+//            dbhelper.doUpdate(changeAcctBalance);
+
+            acctDetail.setBalance_after(acctTotalBal);
+            if (dbhelper.insertIntoDBO(
+                    dbhelper, changeAcctBalance, acctOpr.addAcctOperation(), acctDetail.addAcctDetail()
+            ) < 0) {
+                setTrans_result("通知账户销户失败!");
+            }
+            setTrans_result("通知账户销户成功");
         }
 
 //		**原方法**
@@ -198,6 +204,29 @@ public class AccountCancellation extends BankTrans {
 //		}
 //		setTrans_result("销户成功");
         return 0;
+    }
+
+
+    private void setDetail(Acct acct, AcctOperation acctOpr, AcctDetail acctDetail) {
+        acctDetail.setdbhelper(dbhelper);
+        acctDetail.setTrans_no(acctDetail.createDetailNo());
+        acctDetail.setAcct_no(acct_no);
+        acctDetail.setBalance_before(acct.gainBalance());
+        acctDetail.setTrans_type(acctOpr.getOpr_type());
+        acctDetail.setTrans_amt(acct.gainBalance());
+        Date date = new Date(new java.util.Date().getTime());
+        acctDetail.setTrans_date(date);
+        acctDetail.setTrans_time(new Time(new java.util.Date().getTime()));
+        acctDetail.setOperator_id("001");
+    }
+
+    public void setOperationForAcctCancel(AcctOperation acctOperation) {
+        acctOperation.setDbhelper(dbhelper);
+        Date date = new Date(new java.util.Date().getTime());
+        acctOperation.setAcct_no(acct_no);
+        acctOperation.setOpr_type("008");
+        acctOperation.setOpr_date(date);
+        acctOperation.setOpr_time(new Time(new java.util.Date().getTime()));
     }
 
     public void revokeFixedAcct(SubAcct subAcct) {

@@ -200,16 +200,39 @@ public class ConnectMySql {
     }
 
     /*
-    * 增加子账户，整存整取
+    * 插入数据表（subAcct和detail）
     * */
     public int insertIntoDBO(ConnectMySql dbhelper, String SQL1) {
+        Connection conn = dbhelper.getConnection();
+        try {
+            // 插入成功返回结果为1，不成功为0
+            int i = dbhelper.doUpdate(SQL1.toString());
+            if (i <= 0) {
+                System.out.println("数据写入失败");
+                return -1;
+            }
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /*
+* 增加子账户后，写入acct和operation数据表
+* */
+    public int insertIntoDBO(ConnectMySql dbhelper, String SQL1, String SQL2) {
         Connection conn = dbhelper.getConnection();
         try {
             conn.setAutoCommit(false);// 将提交事务设为手动提交
             // 插入成功返回结果为1，不成功为0
             int i = dbhelper.doUpdate(SQL1.toString());
+            int j = dbhelper.doUpdate(SQL2.toString());
             if (i <= 0) {
                 System.out.println("insert t_sub_acct 表失败");
+                return -1;
+            }
+            if (j <= 0) {
+                System.out.println("insert t_acct_operation 表失败");
                 return -1;
             }
             conn.commit();
@@ -225,21 +248,26 @@ public class ConnectMySql {
     }
 
     /*
-* 增加子账户后，写入总账户和detail
+* 插入acct、Operation、subAcct数据表，
 * */
-    public int insertIntoDBO(ConnectMySql dbhelper, String SQL1, String SQL2) {
+    public int insertIntoDBOExceptDetail(ConnectMySql dbhelper, String SQL1, String SQL2, String SQL3) {
         Connection conn = dbhelper.getConnection();
         try {
             conn.setAutoCommit(false);// 将提交事务设为手动提交
             // 插入成功返回结果为1，不成功为0
             int i = dbhelper.doUpdate(SQL1.toString());
             int j = dbhelper.doUpdate(SQL2.toString());
+            int k = dbhelper.doUpdate(SQL3.toString());
             if (i <= 0) {
-                System.out.println("insert t_sub_acct 表失败");
+                System.out.println("insert t_acct 表失败");
                 return -1;
             }
             if (j <= 0) {
-                System.out.println("insert t_acct_detail 表失败");
+                System.out.println("insert t_acct_operation 表失败");
+                return -1;
+            }
+            if (k <= 0) {
+                System.out.println("insert t_sub_acct 表失败");
                 return -1;
             }
             conn.commit();
@@ -253,7 +281,6 @@ public class ConnectMySql {
         }
         return 0;
     }
-
 
     /**
      * 主要操作有开户、销户

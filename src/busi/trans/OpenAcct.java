@@ -157,11 +157,6 @@ public class OpenAcct extends BankTrans {
 
 
 
-
-
-
-
-
     public void setDbhelper(ConnectMySql dbhelper) {
         this.dbhelper = dbhelper;
     }
