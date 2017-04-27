@@ -206,7 +206,7 @@ public class AccountCancellation extends BankTrans {
             acct.setBalance(acctTotalBal);
             String changeAcctBalance = acct.changeAcctBalance();
             dbhelper.doUpdate(changeAcctBalance);
-            
+
         }
 
         //销户 - 通知账户
