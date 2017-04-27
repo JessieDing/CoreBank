@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+	<KerlAcct>
+		<DbtrAcct>510502198901020304</DbtrAcct> <!-- 付款人账号 -->
+		<DbtrName>张莉</DbtrName> <!-- 付款人账号 -->
+		<CdtrAcct>510012199809089900</CdtrAcct> <!-- 收款人账号 -->
+		<CdtrName>王刚</CdtrName> <!-- 收款人名称-->
+		<Amt>1234.56</Amt> <!-- 金额-->
+		<Remark>劳务费</Remark> <!-- 备注-->
+	</KerlAcct>
+	<KerlAcct>
+		<DbtrAcct>510012199809089900</DbtrAcct> <!-- 付款人账号 -->
+		<DbtrName>王刚</DbtrName> <!-- 付款人账号 -->
+		<CdtrAcct>510502198901020304</CdtrAcct> <!-- 收款人账号 -->
+		<CdtrName>张莉</CdtrName> <!-- 收款人名称-->
+		<Amt>2034.45</Amt> <!-- 金额-->
+		<Remark>借款</Remark> <!-- 备注-->
+	</KerlAcct>
+</xml>

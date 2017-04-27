@@ -297,7 +297,6 @@ public class TransDeposit extends BankTrans {
                 detail.setTrans_time(time);
                 detail.setOperator_id("001");
 
-
                 String insertCallAcct = subAcct.depositSubAcct();
                 if (dbhelper.insertIntoDBO(dbhelper, insertCallAcct) < 0) {
                     setTrans_result("写入子账户失败!");
