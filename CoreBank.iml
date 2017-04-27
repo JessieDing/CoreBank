@@ -8,10 +8,19 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$USER_HOME$/Desktop/0424-coreBank项目/mysql-connector-java-5.1.39-bin.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://H:/Study Files/0419-JavaSE/dom4j-1.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

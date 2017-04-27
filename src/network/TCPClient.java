@@ -1,11 +1,12 @@
+package network;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-/**
- * Created by dell on 2017/4/27.
- */
 public class TCPClient {
     public static void main(String[] args) throws Exception {
         Socket client = new Socket("127.0.0.1", 9999); //连接服务器
@@ -17,20 +18,17 @@ public class TCPClient {
         Thread.sleep(500);
 
 		/* 读取文件 */
-        Scanner s = new Scanner(System.in);
         while (true) {
             System.out.println("enter message:");
-            String line = s.nextLine();
-            if (line.equals("exit")) {
-                break;
-            } else {
-                dataout.writeUTF(line);
-                dataout.flush();
-                System.out.println("Successfully send message to server.");
-                System.out.println("Reply from server: " + dis.readUTF());
-            }
+            String xml = readXML("E:/KerlAcct.xml");
+            dataout.writeUTF(xml);
+            dataout.flush();
+            System.out.println("Successfully send message to server.");
+            System.out.println("Reply from server: " + dis.readUTF());
         }
-        s.close();
-        client.close();
+    }
+
+    private static String readXML(String filePath) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 }

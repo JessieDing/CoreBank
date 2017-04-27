@@ -17,6 +17,9 @@ public class AcctDetail {
     private Date trans_date;// 交易时间
     private Time trans_time;
     private String operator_id;// 操作员
+    private String credit_debit;//借贷
+    private String payee_acct_no;//收款方账号
+    private String remark;//摘要
     private ConnectMySql dbhelper;
     private Date startDate;
     private Date endDate;
@@ -59,6 +62,12 @@ public class AcctDetail {
         strSQL.append(trans_time);
         strSQL.append("','");
         strSQL.append(operator_id);
+        strSQL.append("','");
+        strSQL.append(credit_debit);
+        strSQL.append("','");
+        strSQL.append(payee_acct_no);
+        strSQL.append("','");
+        strSQL.append(remark);
         strSQL.append("')");
         System.out.println("SQL [" + strSQL + "]");
         return strSQL.toString();
@@ -249,7 +258,7 @@ public class AcctDetail {
      */
     public double getTotalBalance() {
         double totalAmt = 0.0;
-        StringBuffer strSQL = new StringBuffer();
+        StringBuilder strSQL = new StringBuilder();
         strSQL.append("select sum(trans_amt) from t_acct_detail where acct_no='");
         strSQL.append(acct_no);
         strSQL.append("' and trans_type='");
