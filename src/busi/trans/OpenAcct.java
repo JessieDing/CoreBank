@@ -108,10 +108,6 @@ public class OpenAcct extends BankTrans {
         String acctNo = acct.createAcctNo();//开户，创建银行账号
         acct.setAcct_no(acctNo);
         acct.setAcct_name(acct.getAcctName());
-        /*
-        * 变更：总balance=各表balance之和
-		* 需修改acct的setBalance方法
-		* */
         acct.setBalance(DEFAULT_MIN_AMOUNT);//总账户余额（默认开户最低存款额10.00）
         acct.setAcct_status(1);
         acct.setCust_no(acct.getCustNo());
@@ -121,7 +117,7 @@ public class OpenAcct extends BankTrans {
         acct.setFreeze_amt(0.00);
         acct.setLast_inter_date(date);
 
-        // 插入数据库T_ACCT_OPERATION表（提方法）
+        // 插入数据库T_ACCT_OPERATION表
         AcctOperation acctOpr = new AcctOperation();
         acctOpr.setDbhelper(dbhelper);
         acctOpr.setAcct_no(acct.getAcct_no());
@@ -129,7 +125,7 @@ public class OpenAcct extends BankTrans {
         acctOpr.setOpr_date(date);
         acctOpr.setOpr_time(new Time(new java.util.Date().getTime()));
 
-        //插入数据库t_acct_detail表（提方法）
+        //插入数据库t_acct_detail表
         AcctDetail detail = new AcctDetail();
         detail.setdbhelper(dbhelper);
         detail.setTrans_no(detail.createDetailNo());
@@ -146,6 +142,10 @@ public class OpenAcct extends BankTrans {
         SubAcct subAcct = new SubAcct();
         Date date1 = acct.getReg_date();
         //默认创建活期子账户
+
+        //1. 开启数据库事务
+        //2. 登记表（每个表一个操作，。。。。。一组操作）
+        //3. 提交事务 或 回滚事务
         String strRegSubAcct = subAcct.openSubAcct(acctNo, detail.getTrans_no(), "001", DEFAULT_MIN_AMOUNT, date1, subAcct.setDate(),1);
         if (dbhelper.insertIntoDBO(dbhelper, acct.regAcct(), acctOpr.addAcctOperation(), detail.addAcctDetail(), strRegSubAcct) < 0) {
             setTrans_result("开户失败!");

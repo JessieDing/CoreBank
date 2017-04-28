@@ -1,12 +1,12 @@
 package busi.model;
 
 public class KerlAcct {
-    private String dbtrAcct;
-    private String dbtrName;
-    private String cdtrAcct;
-    private String cdtrName;
-    private String amt;
-    private String remark;
+    private String dbtrAcct;//付款人账号
+    private String dbtrName;//付款人名称
+    private String cdtrAcct;//收款人账号
+    private String cdtrName;//收款人名称
+    private String amt;//发生额
+    private String remark;//摘要
 
     public void setDbtrAcct(String dbtrAcct) {
         this.dbtrAcct = dbtrAcct;

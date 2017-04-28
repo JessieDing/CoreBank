@@ -18,7 +18,7 @@ public class AcctDetail {
     private Time trans_time;
     private String operator_id;// 操作员
     private String credit_debit;//借贷
-    private String payee_acct_no;//收款方账号
+    private String counterparty_Acct;//交易对手账号
     private String remark;//摘要
     private ConnectMySql dbhelper;
     private Date startDate;
@@ -65,7 +65,7 @@ public class AcctDetail {
         strSQL.append("','");
         strSQL.append(credit_debit);
         strSQL.append("','");
-        strSQL.append(payee_acct_no);
+        strSQL.append(counterparty_Acct);
         strSQL.append("','");
         strSQL.append(remark);
         strSQL.append("')");
@@ -208,6 +208,30 @@ public class AcctDetail {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getCredit_debit() {
+        return credit_debit;
+    }
+
+    public void setCredit_debit(String credit_debit) {
+        this.credit_debit = credit_debit;
+    }
+
+    public String getCounterparty_Acct() {
+        return counterparty_Acct;
+    }
+
+    public void setCounterparty_Acct(String counterparty_Acct) {
+        this.counterparty_Acct = counterparty_Acct;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     /**

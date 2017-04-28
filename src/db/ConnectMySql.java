@@ -257,7 +257,7 @@ public class ConnectMySql {
             // 插入成功返回结果为1，不成功为0
             int i = dbhelper.doUpdate(SQL1.toString());
             int j = dbhelper.doUpdate(SQL2.toString());
-            int k = dbhelper.doUpdate(SQL3.toString());
+            int k = dbhelper.doUpdate(SQL3.toString()) ;
             if (i <= 0) {
                 System.out.println("insert t_acct 表失败");
                 return -1;

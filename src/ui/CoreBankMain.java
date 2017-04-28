@@ -33,6 +33,7 @@ public class CoreBankMain {
 					}
 				} while (flag);
 				ConnectMySql dbhelper = new ConnectMySql();// 数据库连接
+				// 需要关闭自动提交事务功能?
 				if (dbhelper == null) {
 					System.out.println("打开数据库连接错误！请检查");
 					continue;

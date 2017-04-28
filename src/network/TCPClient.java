@@ -20,13 +20,19 @@ public class TCPClient {
 
 		/* 读取文件 */
         while (true) {
-            System.out.println("enter message:");
+//            System.out.println("enter url:");
             String xml = readXML("D:/KerlAcct.xml");
-            dataout.writeUTF(xml);
-            dataout.flush();
-            System.out.println("Successfully send message to server.");
-            System.out.println("Reply from server: " + dis.readUTF());
+            //判断何时停止?
+            if (xml.endsWith("</xml>")) {
+                break;
+            } else {
+                dataout.writeUTF(xml);
+                dataout.flush();
+                System.out.println("Successfully send message to server.");
+                System.out.println("Reply from server: " + dis.readUTF());
+            }
         }
+        client.close();
     }
 
     private static String readXML(String filePath) throws IOException {
