@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class TCPClient {
+
     public static void main(String[] args) throws Exception {
         Socket client = new Socket("127.0.0.1", 9999); //连接服务器
         System.out.println("Connected!");
@@ -20,7 +21,7 @@ public class TCPClient {
 		/* 读取文件 */
         while (true) {
             System.out.println("enter message:");
-            String xml = readXML("E:/KerlAcct.xml");
+            String xml = readXML("D:/KerlAcct.xml");
             dataout.writeUTF(xml);
             dataout.flush();
             System.out.println("Successfully send message to server.");
