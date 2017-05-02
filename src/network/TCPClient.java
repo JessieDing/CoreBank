@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 public class TCPClient {
 
@@ -18,21 +19,19 @@ public class TCPClient {
 
         Thread.sleep(500);
 
+        System.out.println("enter url:");
+
 		/* 读取文件 */
         while (true) {
-//            System.out.println("enter url:");
-            String xml = readXML("D:/KerlAcct.xml");
-            //判断何时停止?
-            if (xml.endsWith("</xml>")) {
-                break;
-            } else {
-                dataout.writeUTF(xml);
-                dataout.flush();
-                System.out.println("Successfully send message to server.");
-                System.out.println("Reply from server: " + dis.readUTF());
-            }
+            Scanner scan = new Scanner(System.in);
+            String url = scan.nextLine();// D:/KerlAcct.xml
+            String xml = readXML(url);
+            dataout.writeUTF(xml);
+            dataout.flush();
+            System.out.println("Successfully send message to server.");
+            System.out.println("Reply from server: " + dis.readUTF());
         }
-        client.close();
+//        client.close();
     }
 
     private static String readXML(String filePath) throws IOException {

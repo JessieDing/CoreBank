@@ -7,8 +7,10 @@ import busi.model.KerlAcct;
 import db.ConnectMySql;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 
 import java.io.*;
 import java.net.Socket;
@@ -35,6 +37,7 @@ class Worker implements Runnable {
                 String message = dataInputStream.readUTF();
                 System.out.println("strMsg:" + message);
                 kerlAccts = parseKerlAcctXML(message);
+                writeXML("D:/accts.xml",kerlAccts);
                 dataOutputStream.writeUTF("Your message[" + message + "] is received."); // 向客户端回消息
                 dataOutputStream.flush();
             }
@@ -53,6 +56,32 @@ class Worker implements Runnable {
             setDataForPayer(kerlAcct, acct, subAcct, acctDetail);
         }*/
         //update 数据表：subAcct、acctDetail
+    }
+
+    private static void writeXML(String filePath, List<KerlAcct> kerlAccts) throws Exception {
+        Document doc = DocumentHelper.createDocument();
+        Element root = doc.addElement("xml");
+        Element KerlAcct = root.addElement("KerlAcct");
+        for (KerlAcct k : kerlAccts) {
+            Element DbtrAcct = KerlAcct.addElement("DbtrAcct");
+            DbtrAcct.addText(k.getDbtrAcct());
+            Element DbtrName = KerlAcct.addElement("DbtrName");
+            DbtrName.addText(k.getDbtrName());
+            Element CdtrAcct = KerlAcct.addElement("CdtrAcct");
+            CdtrAcct.addText(k.getCdtrAcct());
+            Element CdtrName = KerlAcct.addElement("CdtrName");
+            CdtrName.addText(k.getCdtrName());
+            Element Amt = KerlAcct.addElement("Amt");
+            Amt.addText(k.getAmt());
+            Element Remark = KerlAcct.addElement("Remark");
+            Remark.addText(k.getRemark());
+        }
+        XMLWriter writer = new XMLWriter();
+        FileOutputStream fos = new FileOutputStream(filePath);
+        writer.setOutputStream(fos);
+        writer.write(doc);
+        System.out.println("成功保存接收的数据");
+        writer.close();
     }
 
     /*解析xml*/
